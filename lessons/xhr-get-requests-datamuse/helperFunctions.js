@@ -1,4 +1,24 @@
+
+
 // Formats response to look presentable on webpage
+
+// interface Data {
+//   word: string;
+//   score: number;
+//   numSyllables: number;
+// }
+
+
+const templateSource = `
+<p>You might be interested in:</p>
+<ol>
+  {{#each words}}
+  <li>{{this}}</li>
+  {{/each}}
+</ol>
+`;
+
+
 const renderResponse = (ele, res) => {
     // Handles if res is falsey
     if(!res){
@@ -9,19 +29,17 @@ const renderResponse = (ele, res) => {
       ele.innerHTML = "<p>Try again!</p><p>There were no suggestions found!</p>";
       return;
     }
-  
-    // Creates an empty array to contain the HTML strings
-    let wordList = [];
-    // Loops through the response and caps off at 10
-    for(let i = 0; i < Math.min(res.length, 10); i++){
-      // creating a list of words
-      wordList.push(`<li>${res[i].word}</li>`);
-    }
-    // Joins the array of HTML strings into one string
-    wordList = wordList.join("");
-  
+
+    const headLimit = Math.min(res.length, 10);
+    const wordList = res.slice(0, headLimit).map(e => e.word)
+
+    const context = {
+      words: wordList
+    };
+   
     // Manipulates responseField to render the modified response
-    ele.innerHTML = `<p>You might be interested in:</p><ol>${wordList}</ol>`;
+    const template = Handlebars.compile(templateSource);
+    ele.innerHTML = template(context);
     return
   }
 

@@ -1,8 +1,15 @@
 const createVenueHTML = (venue) => {
 
+  const location = venue.location;
+
   const venueIcon = venue.categories[0].icon;
   const iconSource = `${venueIcon.prefix}bg_64${venueIcon.suffix}`;
-  const location = venue.location;
+
+  let bestPhotoSource;
+  if (venue.details) {
+    const bestPhoto = venue.details.bestPhoto;
+    bestPhotoSource = `${bestPhoto.prefix}bg_64${bestPhoto.suffix}`;
+  }
 
   return `
     <div class="venue-header">
@@ -11,7 +18,7 @@ const createVenueHTML = (venue) => {
     </div>
 
     </div class="container">
-      <img class="venue-icon" src="${iconSource}"/>
+      <img class="venue-photo" src="${bestPhotoSource}"/>
       <div class="venue-address">
         <h3>Address:</h3>
         <p>${location.address}</p>
@@ -19,8 +26,6 @@ const createVenueHTML = (venue) => {
         <p>${location.country}</p>
       </div>
     </div>
-
-
     `;
 };
 
@@ -54,6 +59,8 @@ const createWeatherHTML = (currentDay) => {
   return `
     <h2>Today: ${day}</h2>
 
+    <h2>Condition: ${weather.description}</h2>
+    <img src="${srcImg}">
     <h2>Temperature: ${temp.main.c}&deg;C,${temp.main.f}&deg;F</h2>
     <h2>Feels_like: ${temp.feels_like.c}&deg;C,${temp.feels_like.f}&deg;F</h2>
     <h2>Min: ${temp.min.c}&deg;C,${temp.min.f}&deg;F</h2>
@@ -61,8 +68,7 @@ const createWeatherHTML = (currentDay) => {
 
     <h2>Pressure: ${currentDay.main.pressure} hPa</h2>
     <h2>Humidity: ${currentDay.main.humidity}%</h2>
-    <h2>Condition: ${weather.description}</h2>
-    <img src="${srcImg}">`;
+  `;
 };
 
 const kelvinToCelsius = (k) => (k - 273.15).toFixed(0);

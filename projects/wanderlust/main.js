@@ -1,21 +1,18 @@
 "use strict";
 
-
-// Foursquare API Info
-try {
-  console.log(config);
-} catch (err) {
-  if (err instanceof ReferenceError) { // Handle 
-    alert('API KEYS are undefined!');
-    throw new Error('API KEYS are undefined!');
-  }
+// API KEYS
+if (Object.values(config).includes('')) {
+  const msg = `API KEYS are undefined!\n ${JSON.stringify(config)}`;
+  console.log(msg);
+  alert(msg);
+  throw new Error('API KEYS are undefined!');
 }
-
 const clientId = config.FOUR_SQUARE_CLIENT_ID;
 const clientSecret = config.FOUR_SQUARE_CLIENT_SECRET;
 const openWeatherKey = config.OPENWEATHER_API_KEY;
 
-const url = 'https://api.foursquare.com/v2/venues';
+
+const BASE_URL = 'https://api.foursquare.com/v2/venues/';
 const weatherUrl = 'https://api.openweathermap.org/data/2.5/weather';
 
 
@@ -30,31 +27,39 @@ const $weatherDiv = $("#weather1");
 const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const today = todaysDate();
 
-// Add AJAX functions here:
-const getVenueDetails = async (venue) => {
 
-  const urlToFetch = [url, 'venues', venue.id].join('/');
+// Add AJAX functions here:
+const fetchVenueDetails = async (venueid) => {
+
+  const urlToFetch = [
+    BASE_URL, venueid,
+    '?client_id=' + clientId,
+    '&client_secret=' + clientSecret,
+    '&v=' + today,
+  ].join('');
+  // console.log(urlToFetch);
+
   const response = await fetch(urlToFetch);
 
   if (response.ok) {
     const jsonResponse = await response.json();
-    const details = await jsonResponse.response;
-    return {
-      venue: venue,
-      details: details,
-    };
+    return await jsonResponse.response.venue;
+  } else {
+    const jsonResponse = await response.text();
+    console.log('Failed to fetch venue details!', jsonResponse)
   }
 
 };
 
 
-const getVenues = async (city) => {
+const fetchVenues = async (city) => {
 
   const urlToFetch = [
-     url + '/explore?near=' + city,
-    '&limit=' + 10,
-    '&client_id=' + clientId,
+    BASE_URL + 'explore',
+    '?client_id=' + clientId,
     '&client_secret=' + clientSecret,
+    '&near=' + city,
+    '&limit=' + 10,
     '&v=' + today,
   ].join('');
   //   console.log(urlToFetch);
@@ -62,16 +67,27 @@ const getVenues = async (city) => {
   const response = await fetch(urlToFetch);
   if (response.ok) {
     const jsonResponse = await response.json();
-    const venues = await jsonResponse.response
-      .groups[0].items
-      .map(item => 
-        getVenueDetails(item.venue)
-      );
-    return venues;
+    return await jsonResponse.response.groups[0]
+      .items;
   }
 
-
 };
+
+
+const getVenues = async (city) => {
+
+  const venues = await fetchVenues(city)
+
+  const venueData = await Promise.all(
+    venues.map(async (v) => {
+      const venue = v.venue;
+      venue.details = await fetchVenueDetails(v.venue.id);
+
+      return venue;
+    })
+  );
+  return venueData;
+}
 
 
 const getForecast = async (city) => {
@@ -93,14 +109,14 @@ const getForecast = async (city) => {
 
 
 // Render functions
-const renderVenues = (venues) => {
-  $venueDivs.forEach(($venue, index) => {
-    const venue = venues[index];
-    const venueContent = createVenueHTML(venue);
-    $venue.append(venueContent);
-  });
-  $destination.append(`<h2>${venues[0].location.city}</h2>`);
+
+const resetPage = () => {
+  $venueDivs.forEach(venue => venue.empty());
+  $weatherDiv.empty();
+  $destination.empty();
+  $container.css("visibility", "visible");
 };
+
 
 const renderForecast = (day) => {
   const weatherContent = createWeatherHTML(day);
@@ -108,25 +124,41 @@ const renderForecast = (day) => {
 
 };
 
-const executeSearch = () => {
-  $venueDivs.forEach(venue => venue.empty());
-  $weatherDiv.empty();
-  $destination.empty();
-  $container.css("visibility", "visible");
 
-  const city = $input.val();
+const renderVenues = (venues) => {
 
-  getVenues(city || 'sydney')
-    .then(venues => 
-      renderVenues(venues)
-    );
-  // .then(venues => console.log(venues));
+  $venueDivs.forEach(($venue, index) => {
+    const venue = venues[index];
+    const venueContent = createVenueHTML(venue);
+    $venue.append(venueContent);
+  });
+  $destination.append(`<h2>${venues[0].location.city}</h2>`);
 
-  getForecast(city || 'sydney')
+};
+
+
+const updatePage = () => {
+
+  const city = $input.val() || 'sydney';
+
+  getForecast(city)
     .then(forecast =>
       renderForecast(forecast)
     );
   // .then(forecast => console.log(forecast));
+
+  getVenues(city)
+    .then(venues =>
+      renderVenues(venues)
+    );
+  // .then(venues => console.log(venues));
+}
+
+
+const executeSearch = () => {
+
+  resetPage();
+  updatePage();
 
   return false;
 }

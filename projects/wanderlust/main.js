@@ -76,16 +76,30 @@ const fetchVenues = async (city) => {
 
 const getVenues = async (city) => {
 
+  //  Check if venueData exists in localStorage
+  if (
+    localStorage.getItem('city') === city &&
+    localStorage.getItem('venueData')
+  ) {
+    console.log(`Retriving venueData for ${city} from localStorage`);
+    const venueData = localStorage.getItem('venueData');
+    return JSON.parse(venueData);
+  }
+
   const venues = await fetchVenues(city)
 
   const venueData = await Promise.all(
     venues.map(async (v) => {
       const venue = v.venue;
       venue.details = await fetchVenueDetails(v.venue.id);
-
       return venue;
     })
   );
+
+  localStorage.setItem('city', city);
+  localStorage.setItem('venueData', venueData);
+  console.log(`Cache venueData for ${city} in localStorage`);
+
   return venueData;
 }
 

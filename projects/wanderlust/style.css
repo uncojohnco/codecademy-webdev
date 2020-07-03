@@ -83,25 +83,28 @@ footer {
   width: 275px;
   padding: 20px;
   box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.5);
-  align-items: flex-start;
+  display: grid;
+  grid-template-rows: auto auto 300px;
 }
 
 .venue-header {
+  grid-row: 1;
   display: inline-flex;
   align-items: center;
-  align-content: flex-start;
 }
 
 .venue-icon {
   margin: 20px;
 }
-.venue-photo {
-  margin: 20px;
-}
 
 .venue-address {
+  grid-row: 2;
   margin: 20px;
   vertical-align: middle;
+}
+.venue-photo {
+  grid-row: 3;
+  max-width: 100%;
 }
 
 #venues h2 {

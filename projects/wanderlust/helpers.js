@@ -7,8 +7,9 @@ const createVenueHTML = (venue) => {
 
   let bestPhotoSource;
   if (venue.details) {
+    const size = '300x300';
     const bestPhoto = venue.details.bestPhoto;
-    bestPhotoSource = `${bestPhoto.prefix}bg_64${bestPhoto.suffix}`;
+    bestPhotoSource = bestPhoto.prefix + size + bestPhoto.suffix;
   }
 
   return `
@@ -18,13 +19,13 @@ const createVenueHTML = (venue) => {
     </div>
 
     </div class="container">
-      <img class="venue-photo" src="${bestPhotoSource}"/>
       <div class="venue-address">
         <h3>Address:</h3>
         <p>${location.address}</p>
         <p>${location.city}</p>
         <p>${location.country}</p>
       </div>
+      <img class="venue-photo" src="${bestPhotoSource}"/>
     </div>
     `;
 };

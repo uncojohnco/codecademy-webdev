@@ -97,7 +97,7 @@ const getVenues = async (city) => {
   );
 
   localStorage.setItem('city', city);
-  localStorage.setItem('venueData', venueData);
+  localStorage.setItem('venueData', JSON.stringify(venueData));
   console.log(`Cache venueData for ${city} in localStorage`);
 
   return venueData;

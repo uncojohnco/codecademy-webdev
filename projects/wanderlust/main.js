@@ -37,7 +37,6 @@ const fetchVenueDetails = async (venueid) => {
     '&client_secret=' + clientSecret,
     '&v=' + today,
   ].join('');
-  // console.log(urlToFetch);
 
   const response = await fetch(urlToFetch);
 
@@ -62,7 +61,6 @@ const fetchVenues = async (city) => {
     '&limit=' + 10,
     '&v=' + today,
   ].join('');
-  //   console.log(urlToFetch);
 
   const response = await fetch(urlToFetch);
   if (response.ok) {
@@ -111,7 +109,6 @@ const getForecast = async (city) => {
     '?&q=' + city,
     '&APPID=' + openWeatherKey,
   ].join('');
-  // console.log(urlToFetch);
 
   const response = await fetch(urlToFetch);
   if (response.ok) {
@@ -159,13 +156,11 @@ const updatePage = () => {
     .then(forecast =>
       renderForecast(forecast)
     );
-  // .then(forecast => console.log(forecast));
 
   getVenues(city)
     .then(venues =>
       renderVenues(venues)
     );
-  // .then(venues => console.log(venues));
 }
 
 

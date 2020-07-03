@@ -87,4 +87,3 @@ function todaysDate() {
 
   return `${YYYY}${MM}${DD}`;
 }
-// console.log(todaysDate());

@@ -177,4 +177,9 @@ const executeSearch = () => {
   return false;
 }
 
-$submit.click(executeSearch)
+$submit.click(executeSearch);
+
+if ( localStorage.getItem('city') ) {
+  $input.val(localStorage.getItem('city'));
+  $submit.click();
+}
